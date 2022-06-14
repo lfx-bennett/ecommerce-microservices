@@ -1,0 +1,156 @@
+
+services:
+  frontend:
+    build: ./src/frontend
+    # use python rather than gunicorn for local dev
+    # command: python app.py
+    # depends_on:
+      # redis:
+        # condition: service_healthy 
+    # volumes:
+     # - ./vote:/app
+    ports:
+      - "8080"
+    networks:
+      - front-tier
+      - back-tier
+
+  ad:
+    build: ./src/adservice
+    # depends_on:
+      # redis:
+        # condition: service_healthy 
+    # volumes:
+     # - ./vote:/app
+    ports:
+      - "9555"
+    networks:
+      # - front-tier
+      - back-tier
+
+
+  recommendation:
+    build: ./src/recommendationservice
+    # depends_on:
+      # redis:
+        # condition: service_healthy 
+    # volumes:
+     # - ./vote:/app
+    ports:
+      - "8080"
+    networks:
+      # - front-tier
+      - back-tier
+
+  product-catalog:
+    build: ./src/productcatalogservice
+    ports:
+      - "3550"
+    networks:
+      - back-tier
+
+
+  cart:
+    build: ./src/cartservice/src
+    ports:
+      - "7070"
+    networks:
+      - back-tier
+
+  checkout:
+    build: ./src/checkoutservice
+    ports:
+      - "5050"
+    networks:
+      - back-tier
+
+  shipping:
+    build: ./src/shippingservice
+    ports: 
+      - "50051:50051"
+    networks: 
+      - back-tier
+
+
+  payment:
+    build: ./src/paymentservice
+    ports:
+      - "50051"
+    networks:
+      - back-tier
+
+  email:
+    build: ./src/emailservice
+    ports: 
+      - "8080"
+    networks:
+      - back-tier
+
+  currency:
+    build: ./src/currencyservice
+    ports:
+      - "7000"
+    networks:
+      - back-tier
+
+
+#   result:
+#     build: ./result
+#     # use nodemon rather than node for local dev
+#     command: nodemon server.js
+#     depends_on:
+#       db:
+#         condition: service_healthy 
+#     volumes:
+#       - ./result:/app
+#     ports:
+#       - "5001:80"
+#       - "5858:5858"
+#     networks:
+#       - front-tier
+#       - back-tier
+
+#   worker:
+#     build:
+#       context: ./worker
+#     depends_on:
+#       redis:
+#         condition: service_healthy 
+#       db:
+#         condition: service_healthy 
+#     networks:
+#       - back-tier
+
+#   redis:
+#     image: redis:5.0-alpine3.10
+#     volumes:
+#       - "./healthchecks:/healthchecks"
+#     healthcheck:
+#       test: /healthchecks/redis.sh
+#       interval: "5s"
+#     ports: ["6379"]
+#     networks:
+#       - back-tier
+
+#   db:
+#     image: postgres:9.4
+#     environment:
+#       POSTGRES_USER: "postgres"
+#       POSTGRES_PASSWORD: "postgres"
+#       PGDATA: /var/lib/postgresql/data/pgdata
+#     volumes:
+#       - "db-data:/var/lib/postgresql/data"
+#       - "./healthchecks:/healthchecks"
+#     ports: ["5432"]
+#     healthcheck:
+#       test: /healthchecks/postgres.sh
+#       interval: "5s"
+#     networks:
+#       - back-tier
+
+# volumes:
+#   db-data:
+
+networks:
+  front-tier:
+  back-tier:
