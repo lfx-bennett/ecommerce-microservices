@@ -14,7 +14,22 @@ services:
     networks:
       - front-tier
       - back-tier
-
+    environment:
+      PORT: "8080"
+      PRODUCT_CATALOG_SERVICE_ADDR: "productcatalogservice:3550"
+      CURRENCY_SERVICE_ADDR: "currencyservice:7000"
+      CART_SERVICE_ADDR: "cartservice:7070"
+      RECOMMENDATION_SERVICE_ADDR: "recommendationservice:8080"
+      SHIPPING_SERVICE_ADDR: "shippingservice:50051"
+      CHECKOUT_SERVICE_ADDR: "checkoutservice:5050"
+      AD_SERVICE_ADDR: "adservice:9555"
+      # # ENV_PLATFORM: One of: local, gcp, aws, azure, onprem, alibaba
+      # # When not set, defaults to "local" unless running in GKE, otherwies auto-sets to gcp 
+      # - name: ENV_PLATFORM 
+      #   value: "aws"
+      ENV_PLATFORM: local
+      DISABLE_TRACING: "1"
+      DISABLE_PROFILER: "1"
   ad:
     build: ./src/adservice
     # depends_on:
@@ -27,6 +42,11 @@ services:
     networks:
       # - front-tier
       - back-tier
+    environment:
+      PORT: "9555"
+      DISABLE_STATS: "1"
+      DISABLE_TRACING: "1"
+
 
 
   recommendation:
@@ -41,13 +61,23 @@ services:
     networks:
       # - front-tier
       - back-tier
-
+    environment:
+      PORT: "8080"
+      PRODUCT_CATALOG_SERVICE_ADDR: "productcatalogservice:3550"
+      DISABLE_TRACING: "1"
+      DISABLE_PROFILER: "1"
+      DISABLE_DEBUGGER: "1"
   product-catalog:
     build: ./src/productcatalogservice
     ports:
       - "3550"
     networks:
       - back-tier
+    environment:
+      PORT: "3550"
+      DISABLE_STATS: "1"
+      DISABLE_TRACING: "1"
+      DISABLE_PROFILER: "1"
 
 
   cart:
@@ -56,6 +86,8 @@ services:
       - "7070"
     networks:
       - back-tier
+    environment:
+      REDIS_ADDR: "redis-cart:6379"
 
   checkout:
     build: ./src/checkoutservice
@@ -63,6 +95,17 @@ services:
       - "5050"
     networks:
       - back-tier
+    environment: 
+      PORT: "5050"
+      PRODUCT_CATALOG_SERVICE_ADDR: "3550"
+      SHIPPING_SERVICE_ADDR: "shippingservice:50051"
+      PAYMENT_SERVICE_ADDR: "paymentservice:50051"
+      EMAIL_SERVICE_ADDR: "emailservice:5000"
+      CURRENCY_SERVICE_ADDR: "currencyservice:7000"
+      CART_SERVICE_ADDR: "cartservice:7070"
+      DISABLE_STATS: "1"
+      DISABLE_TRACING: "1"
+      DISABLE_PROFILER: "1"
 
   shipping:
     build: ./src/shippingservice
@@ -70,6 +113,11 @@ services:
       - "50051:50051"
     networks: 
       - back-tier
+    environment:
+      PORT: "50051"
+      DISABLE_STATS: "1"
+      DISABLE_TRACING: "1"
+      DISABLE_PROFILER: "1"
 
 
   payment:
@@ -78,6 +126,11 @@ services:
       - "50051"
     networks:
       - back-tier
+    environment:
+      PORT: "50051"
+      DISABLE_TRACING: "1"
+      DISABLE_PROFILER: "1"
+      DISABLE_DEBUGGER: "1"
 
   email:
     build: ./src/emailservice
@@ -85,6 +138,10 @@ services:
       - "8080"
     networks:
       - back-tier
+    environment:
+      PORT: "8080"
+      DISABLE_TRACING: "1"
+      DISABLE_PROFILER: "1"
 
   currency:
     build: ./src/currencyservice
@@ -92,6 +149,11 @@ services:
       - "7000"
     networks:
       - back-tier
+    environment:
+      PORT: "7000"
+      DISABLE_TRACING: "1"
+      DISABLE_PROFILER: "1"
+      DISABLE_DEBUGGER: "1"
 
 
 #   result:
@@ -131,6 +193,20 @@ services:
 #     ports: ["6379"]
 #     networks:
 #       - back-tier
+
+
+  redis-cart:
+    image: redis:alpine
+    restart: always
+    ports:
+      - '6379:6379'
+    #command: redis-server --save 20 1 --loglevel warning --requirepass eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
+    volumes: 
+      - redis-data:/data
+volumes:
+  redis-data:
+    driver: local
+
 
 #   db:
 #     image: postgres:9.4
