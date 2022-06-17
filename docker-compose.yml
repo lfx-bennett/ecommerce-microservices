@@ -98,7 +98,7 @@ services:
       - back-tier
     environment: 
       PORT: "5050"
-      PRODUCT_CATALOG_SERVICE_ADDR: "3550"
+      PRODUCT_CATALOG_SERVICE_ADDR: "productcatalog:3550"
       SHIPPING_SERVICE_ADDR: "shipping:50051"
       PAYMENT_SERVICE_ADDR: "payment:50051"
       EMAIL_SERVICE_ADDR: "email:5000"
